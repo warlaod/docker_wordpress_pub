@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: db
+    volumes:
+      - ./db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  phpmyadmin:
+      image: bitnami/phpmyadmin:5.0.2-debian-10-r72
+      container_name: phpmyadmin
+      ports:
+        - 8080:80
+        - 8443:443
+      environment:
+          DATABASE_HOST: db
+      restart: always
+
+  tor:
+    image: dperson/torproxy
+    container_name: tor
+    volumes:
+      - ./tor/torrc:/etc/tor/torrc
+
+  wp:
+    container_name: wp
+    depends_on:
+      - db
+      - tor
+    build: ./wordpress
+    ports:
+      - "8000:80"
+    restart: always
+    volumes:
+        - ./html:/var/www/html/
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      ENV: dev
