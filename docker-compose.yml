@@ -4,6 +4,8 @@ services:
   db:
     image: mysql:5.7
     container_name: db
+    ports:
+        - 3306:3306
     volumes:
       - ./db_data:/var/lib/mysql
     restart: always
@@ -40,6 +42,23 @@ services:
     restart: always
     volumes:
         - ./html:/var/www/html/
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      ENV: dev
+
+  go_cron:
+    container_name: go_cron
+    tty: true
+    stdin_open: true
+    depends_on:
+      - db
+      - tor
+    build: ./go_cron
+    volumes:
+        - ./html/crons:/var/www/html/crons
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: wordpress

@@ -1,4 +1,4 @@
-FROM wordpress:php8.1
+FROM wordpress:5.8.1-php8.0
 
 RUN apt update
 
@@ -17,24 +17,9 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
 
 RUN mv composer.phar /usr/local/bin/composer
 RUN docker-php-ext-install sockets
-
-# imagecreatefromwebp()が使えるようにする
-RUN apt-get update && \
-  apt-get install -y zlib1g-dev libwebp-dev libpng-dev libjpeg-dev
-
-RUN docker-php-ext-configure gd --with-webp && \
-  docker-php-ext-install gd
+RUN composer require nesk/puphpeteer
 
 RUN apt-get install -y libgtk-3.0 libgbm-dev libnss3 libatk-bridge2.0-0 libasound2
 RUN apt install -y nodejs
 RUN apt install -y npm
-
-# puppeteer インストール
-RUN apt-get update \
-  && apt-get install -y wget gnupg \
-  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
-  && apt-get update \
-  && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
-  --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/*
+RUN npm install @nesk/puphpeteer
